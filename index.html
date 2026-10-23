@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>El Sermón del Monte · Preguntas</title>
+<style>
+  /* ============================================================
+     ESTILOS
+     ============================================================ */
+  :root {
+    --bg: #0a0f1c;
+    --bg-2: #111a2e;
+    --panel: #141e33;
+    --panel-2: #1b2742;
+    --line: #2a3a5c;
+    --text: #f5f7fb;
+    --muted: #9aa8c4;
+    --dim: #5d6b88;
+    --used: #2b7a4b;
+    --accent: #f5c451;          /* cambia según la sección */
+    --accent-ink: #1a1405;
+  }
+  body[data-section="multipleChoice"] { --accent: #f5c451; --accent-ink: #1f1703; }
+  body[data-section="fillBlank"]      { --accent: #4fd1c5; --accent-ink: #032220; }
+  body[data-section="analysis"]       { --accent: #b49cff; --accent-ink: #160d33; }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Roboto, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+  /* ---------- Layout del modo control ---------- */
+  .app {
+    height: 100vh;
+    display: grid;
+    grid-template-rows: auto 1fr;
+  }
+  .topbar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-2);
+  }
+  .brand { font-weight: 700; font-size: 18px; letter-spacing: .02em; white-space: nowrap; }
+  .brand small { color: var(--muted); font-weight: 500; margin-left: 8px; }
+  .topbar .spacer { flex: 1; }
+
+  .main {
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 400px 1fr;
+  }
+  .panel {
+    min-height: 0;
+    overflow-y: auto;
+    padding: 18px;
+    border-right: 1px solid var(--line);
+    background: var(--panel);
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .panel h2 {
+    margin: 0 0 8px;
+    font-size: 12px;
+    letter-spacing: .14em;
+    color: var(--muted);
+    font-weight: 700;
+  }
+
+  /* Pestañas de sección */
+  .sections { display: grid; gap: 8px; }
+  .sec-btn {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 2px solid var(--line);
+    background: var(--panel-2);
+    font-size: 16px; font-weight: 600; text-align: left;
+  }
+  .sec-btn .count { font-size: 13px; color: var(--muted); font-weight: 500; }
+  .sec-btn[data-key="multipleChoice"] { --c: #f5c451; }
+  .sec-btn[data-key="fillBlank"]      { --c: #4fd1c5; }
+  .sec-btn[data-key="analysis"]       { --c: #b49cff; }
+  .sec-btn:hover { border-color: var(--c); }
+  .sec-btn[aria-pressed="true"] { border-color: var(--c); background: color-mix(in srgb, var(--c) 18%, var(--panel-2)); }
+  .sec-btn[aria-pressed="true"] .name { color: var(--c); }
+
+  /* Cuadrícula de preguntas */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+  }
+  .cell { position: relative; }
+  .num {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: 10px;
+    border: 2px solid var(--line);
+    background: var(--panel-2);
+    font-size: 20px; font-weight: 700;
+    display: grid; place-items: center;
+  }
+  .num:hover { border-color: var(--accent); }
+  .cell.used .num {
+    background: color-mix(in srgb, var(--used) 22%, var(--panel));
+    border-color: color-mix(in srgb, var(--used) 60%, var(--line));
+    color: var(--muted);
+    text-decoration: line-through;
+    text-decoration-thickness: 2px;
+  }
+  .cell.current .num {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-ink);
+    text-decoration: none;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 35%, transparent);
+  }
+  .chk {
+    position: absolute; top: -6px; right: -6px;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    border: 2px solid var(--line);
+    background: var(--bg);
+    color: transparent;
+    font-size: 13px; font-weight: 900; line-height: 1;
+    display: grid; place-items: center;
+    padding: 0;
+    opacity: .55;
+  }
+  .cell:hover .chk, .chk:focus-visible { opacity: 1; color: var(--muted); }
+  .cell.used .chk { opacity: 1; background: var(--used); border-color: var(--used); color: #fff; }
+
+  .progress { font-size: 13px; color: var(--muted); margin-top: 10px; }
+
+  /* Botones de acción */
+  .actions { display: grid; gap: 8px; }
+  .btn {
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 2px solid var(--line);
+    background: var(--panel-2);
+    font-size: 15px; font-weight: 700; letter-spacing: .04em;
+  }
+  .btn:hover { border-color: var(--accent); }
+  .btn.primary {
+    background: var(--accent); border-color: var(--accent); color: var(--accent-ink);
+    font-size: 18px; padding: 14px;
+  }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .btn.danger { color: #ff9a9a; }
+  .btn.danger:hover { border-color: #ff6b6b; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+  .help { font-size: 12.5px; color: var(--muted); line-height: 1.7; }
+  .help kbd {
+    display: inline-block; min-width: 22px; text-align: center;
+    padding: 1px 6px; border-radius: 5px;
+    border: 1px solid var(--line); background: var(--bg);
+    color: var(--text); font-family: inherit; font-size: 12px;
+  }
+
+  /* ---------- Escenario (pregunta) ---------- */
+  .stage-wrap {
+    min-height: 0;
+    padding: 20px;
+    display: flex;
+  }
+  .stage {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    border-radius: 16px;
+    background:
+      radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--accent) 7%, transparent), transparent 60%),
+      var(--bg);
+    border: 1px solid var(--line);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4% 5%;
+  }
+  .content {
+    width: 100%;
+    max-width: 28em;
+    line-height: 1.25;
+  }
+  .content.enter { animation: fadeIn .18s ease-out; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  .q-label {
+    font-size: .42em;
+    font-weight: 800;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: .5em;
+  }
+  .q-ref {
+    display: inline-block;
+    font-size: .42em;
+    font-weight: 600;
+    color: var(--muted);
+    border: .08em solid var(--line);
+    border-radius: 2em;
+    padding: .2em .8em;
+    margin-bottom: 1.1em;
+  }
+  .q-text {
+    font-size: 1em;
+    font-weight: 650;
+    margin: 0;
+    text-wrap: pretty;
+  }
+  .q-text.phrase { font-weight: 550; line-height: 1.45; }
+  .q-text.analysis { font-size: 1.08em; }
+  .blank {
+    display: inline-block;
+    width: 4.6em;
+    height: 1em;
+    border-bottom: .1em solid var(--accent);
+    margin: 0 .12em;
+    vertical-align: -.12em;
+  }
+  .options {
+    list-style: none;
+    margin: 1em 0 0;
+    padding: 0;
+    display: grid;
+    gap: .36em;
+    font-size: .68em;
+  }
+  .options li {
+    display: flex;
+    align-items: baseline;
+    gap: .6em;
+    padding: .38em .6em;
+    border-radius: .35em;
+    background: color-mix(in srgb, var(--text) 5%, transparent);
+    border: .04em solid color-mix(in srgb, var(--text) 10%, transparent);
+    font-weight: 500;
+  }
+  .options .letter {
+    flex: none;
+    width: 1.6em;
+    height: 1.6em;
+    border-radius: 50%;
+    display: inline-grid;
+    place-items: center;
+    font-weight: 800;
+    font-size: .9em;
+    background: color-mix(in srgb, var(--text) 12%, transparent);
+    transform: translateY(.18em);
+  }
+
+  /* Controles flotantes del modo presentación */
+  .pres-controls {
+    position: fixed;
+    right: 18px; bottom: 16px;
+    display: none;
+    gap: 8px;
+    opacity: .18;
+    transition: opacity .25s;
+    z-index: 10;
+  }
+  .pres-controls:hover, body.mouse-active .pres-controls { opacity: .85; }
+  .pres-controls button {
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    font-size: 14px; font-weight: 600;
+  }
+  .digit-hint {
+    position: fixed; left: 50%; top: 18px; transform: translateX(-50%);
+    padding: 8px 16px; border-radius: 10px;
+    background: var(--panel); border: 1px solid var(--accent);
+    color: var(--accent); font-weight: 700; font-size: 18px;
+    display: none; z-index: 11;
+  }
+  .digit-hint.show { display: block; }
+
+  /* ---------- MODO PRESENTACIÓN ---------- */
+  body.presenting .topbar,
+  body.presenting .panel { display: none; }
+  body.presenting .app { grid-template-rows: 1fr; }
+  body.presenting .main { grid-template-columns: 1fr; }
+  body.presenting .stage-wrap { padding: 0; }
+  body.presenting .stage { border: 0; border-radius: 0; padding: 3.5vh 5vw; }
+  body.presenting .pres-controls { display: flex; }
+  body.presenting.hide-cursor, body.presenting.hide-cursor * { cursor: none; }
+
+  /* ---------- Responsive (laptop pequeña / iPad / móvil) ---------- */
+  @media (max-width: 980px) {
+    body:not(.presenting) { overflow: auto; }
+    body:not(.presenting) .app { height: auto; min-height: 100vh; }
+    body:not(.presenting) .main { grid-template-columns: 1fr; }
+    body:not(.presenting) .panel { border-right: 0; border-bottom: 1px solid var(--line); overflow: visible; }
+    body:not(.presenting) .stage-wrap { height: 62vh; padding: 12px; }
+    .brand small { display: none; }
+    .num { aspect-ratio: auto; height: 56px; }
+  }
+</style>
+</head>
+<body data-section="multipleChoice">
+
+<div class="app">
+  <header class="topbar">
+    <div class="brand">El Sermón del Monte <small>Mateo 5-7 · Nueva Traducción Viviente</small></div>
+    <div class="spacer"></div>
+    <button class="btn" id="btnFullscreen" type="button">PANTALLA COMPLETA</button>
+  </header>
+
+  <div class="main">
+    <aside class="panel">
+      <section>
+        <h2>SECCIÓN</h2>
+        <div class="sections" id="sections"></div>
+      </section>
+
+      <section>
+        <h2>PREGUNTA</h2>
+        <div class="grid" id="grid"></div>
+        <div class="progress" id="progress"></div>
+      </section>
+
+      <section class="actions">
+        <button class="btn primary" id="btnPresent" type="button">▶ PRESENTAR</button>
+        <button class="btn" id="btnRandom" type="button">🎲 PREGUNTA ALEATORIA</button>
+        <div class="row">
+          <button class="btn" id="btnPrev" type="button">◀ ANTERIOR</button>
+          <button class="btn" id="btnNext" type="button">SIGUIENTE ▶</button>
+        </div>
+        <button class="btn" id="btnUsed" type="button">✓ MARCAR COMO USADA</button>
+        <button class="btn danger" id="btnReset" type="button">REINICIAR PROGRESO</button>
+      </section>
+
+      <section class="help">
+        <h2>TECLADO</h2>
+        <kbd>→</kbd> / <kbd>←</kbd> siguiente / anterior<br>
+        <kbd>1</kbd>–<kbd>24</kbd> ir a una pregunta<br>
+        <kbd>P</kbd> o <kbd>Enter</kbd> presentar<br>
+        <kbd>Esc</kbd> o <kbd>S</kbd> volver al selector<br>
+        <kbd>F</kbd> pantalla completa<br>
+        <kbd>R</kbd> pregunta aleatoria<br>
+        <kbd>U</kbd> marcar / desmarcar como usada
+      </section>
+    </aside>
+
+    <div class="stage-wrap">
+      <div class="stage" id="stage">
+        <div class="content" id="content"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="pres-controls" id="presControls">
+  <button type="button" id="pPrev">◀</button>
+  <button type="button" id="pNext">▶</button>
+  <button type="button" id="pFull">⛶</button>
+  <button type="button" id="pExit">✕ Selector (Esc)</button>
+</div>
+<div class="digit-hint" id="digitHint"></div>
+
+<script>
+/* ============================================================
+   PREGUNTAS — Versión participante (sin respuestas)
+   Fuente: Evento_Sermon_Monte_PARTICIPANTE_Final.pdf
+   - multipleChoice: question + options (A, B, C, D en orden)
+   - fillBlank: "___" marca el espacio en blanco
+   - analysis: question
+   ============================================================ */
+const questions = {
+  "multipleChoice": [
+    {
+      "number": 1,
+      "reference": "Mateo 5:9",
+      "question": "Según Mateo 5:9, ¿cuál de estos grupos aparece expresamente en esta bienaventuranza?",
+      "options": [
+        "los que acumulan riquezas",
+        "los que procuran la paz",
+        "los que buscan reconocimiento público",
+        "los que evitan toda oposición"
+      ]
+    },
+    {
+      "number": 2,
+      "reference": "Mateo 5:13",
+      "question": "Según Mateo 5:13, ¿con qué elemento identifica Jesús a sus discípulos en relación con la tierra?",
+      "options": [
+        "semilla",
+        "agua",
+        "sal",
+        "aceite"
+      ]
+    },
+    {
+      "number": 3,
+      "reference": "Mateo 5:16",
+      "question": "Según Mateo 5:16, ¿qué finalidad menciona Jesús para que las buenas acciones de sus discípulos brillen a la vista de todos?",
+      "options": [
+        "para que la gente admire a los discípulos",
+        "para que todos alaben a su Padre celestial",
+        "para que los discípulos obtengan autoridad política",
+        "para que nadie los critique"
+      ]
+    },
+    {
+      "number": 4,
+      "reference": "Mateo 5:17",
+      "question": "Según Mateo 5:17, ¿cómo expresa Jesús el propósito de su venida en relación con la ley de Moisés y los escritos de los profetas?",
+      "options": [
+        "vine para abolir sus mandamientos",
+        "vine para declarar que no tienen ningún propósito",
+        "vine para cumplir sus propósitos",
+        "vine para reservarlos únicamente a los maestros religiosos"
+      ]
+    },
+    {
+      "number": 5,
+      "reference": "Mateo 5:24",
+      "question": "Según Mateo 5:24, después de dejar la ofrenda en el altar, ¿qué instrucción recibe la persona antes de regresar a presentarla?",
+      "options": [
+        "continúa con la ofrenda e ignora el conflicto",
+        "reconcíliate con esa persona",
+        "pide a otro que presente la ofrenda",
+        "espera hasta el día siguiente"
+      ]
+    },
+    {
+      "number": 6,
+      "reference": "Mateo 5:37",
+      "question": "Según Mateo 5:37, ¿qué expresiones indica Jesús para afirmar o negar algo?",
+      "options": [
+        "una promesa solemne en cada conversación",
+        "“Sí, lo haré” o “No, no lo haré”",
+        "un juramento distinto para cada respuesta",
+        "una respuesta diferente según quién escuche"
+      ]
+    },
+    {
+      "number": 7,
+      "reference": "Mateo 5:41",
+      "question": "Según Mateo 5:41, si un soldado exige transportar su equipo por un kilómetro, ¿cuántos kilómetros indica Jesús que se recorran?",
+      "options": [
+        "cuatro",
+        "uno",
+        "dos",
+        "cinco"
+      ]
+    },
+    {
+      "number": 8,
+      "reference": "Mateo 5:44",
+      "question": "Según Mateo 5:44, ¿a quiénes menciona específicamente Jesús en el mandato de amar de este versículo?",
+      "options": [
+        "tus familiares",
+        "tus conocidos",
+        "tus enemigos",
+        "tus amigos"
+      ]
+    },
+    {
+      "number": 9,
+      "reference": "Mateo 6:1",
+      "question": "Según Mateo 6:1, ¿qué perderán quienes hacen sus buenas acciones para recibir la admiración de los demás?",
+      "options": [
+        "el beneficio recibido por la persona ayudada",
+        "la recompensa de su Padre",
+        "el recuerdo de lo que hicieron",
+        "el derecho a ayudar otra vez"
+      ]
+    },
+    {
+      "number": 10,
+      "reference": "Mateo 6:6",
+      "question": "Según Mateo 6:6, ¿qué instrucción da Jesús sobre la oración después de apartarse a solas y cerrar la puerta?",
+      "options": [
+        "ora a tu Padre en privado",
+        "espera a que otra persona comience a orar",
+        "pide que otros escuchen cada palabra",
+        "reúne espectadores antes de continuar"
+      ]
+    },
+    {
+      "number": 11,
+      "reference": "Mateo 6:8",
+      "question": "Según Mateo 6:8, ¿qué afirma Jesús acerca del Padre para explicar por qué no debemos imitar la oración descrita en el versículo anterior?",
+      "options": [
+        "tu oración debe durar menos de un minuto",
+        "tu Padre sabe exactamente lo que necesitas",
+        "tu oración solo es válida cuando está escrita",
+        "tu Padre necesita que otros le expliquen tu situación"
+      ]
+    },
+    {
+      "number": 12,
+      "reference": "Mateo 6:14",
+      "question": "Según Mateo 6:14, ¿a quiénes se refiere Jesús cuando habla de perdonar en este versículo?",
+      "options": [
+        "los que te dan ofrendas",
+        "los que pecan contra ti",
+        "los que siempre están de acuerdo contigo",
+        "los que nunca se equivocan"
+      ]
+    },
+    {
+      "number": 13,
+      "reference": "Mateo 6:16",
+      "question": "Según Mateo 6:16, ¿qué indicación da Jesús acerca de cómo debe ser el ayuno?",
+      "options": [
+        "que se anuncie públicamente",
+        "que no sea evidente",
+        "que se realice sin ninguna higiene",
+        "que siempre sea observado por otras personas"
+      ]
+    },
+    {
+      "number": 14,
+      "reference": "Mateo 6:20",
+      "question": "Según Mateo 6:20, ¿dónde indica Jesús que deben almacenarse los tesoros?",
+      "options": [
+        "en propiedades seguras",
+        "en el cielo",
+        "en cuentas administradas por la comunidad",
+        "en lugares ocultos"
+      ]
+    },
+    {
+      "number": 15,
+      "reference": "Mateo 6:24",
+      "question": "Según Mateo 6:24, ¿a qué puede estar esclavizada una persona, según la incompatibilidad con servir a Dios que se menciona al final del versículo?",
+      "options": [
+        "descanso",
+        "estudio",
+        "dinero",
+        "trabajo"
+      ]
+    },
+    {
+      "number": 16,
+      "reference": "Mateo 6:33",
+      "question": "Según Mateo 6:33, ¿qué deben buscar los discípulos como prioridad?",
+      "options": [
+        "la seguridad económica",
+        "el reino de Dios",
+        "la aprobación de todos",
+        "el control de cada circunstancia"
+      ]
+    },
+    {
+      "number": 17,
+      "reference": "Mateo 7:5",
+      "question": "Según Mateo 7:5, ¿qué debe quitarse primero antes de ocuparse de la astilla en el ojo del amigo?",
+      "options": [
+        "la astilla de cualquier otra persona",
+        "el obstáculo señalado por la mayoría",
+        "el tronco de tu ojo",
+        "la dificultad que resulte más fácil"
+      ]
+    },
+    {
+      "number": 18,
+      "reference": "Mateo 7:11",
+      "question": "Según Mateo 7:11, ¿qué dará el Padre celestial a quienes le pidan?",
+      "options": [
+        "el reconocimiento de todos",
+        "buenos regalos",
+        "una vida sin ninguna dificultad",
+        "todo deseo sin excepción"
+      ]
+    },
+    {
+      "number": 19,
+      "reference": "Mateo 7:12",
+      "question": "Según Mateo 7:12, ¿qué indica Jesús que debes hacer a los demás?",
+      "options": [
+        "todo lo que quieras que te hagan a ti",
+        "únicamente lo que hayan hecho por ti primero",
+        "solo lo que aumente tu reconocimiento",
+        "lo que te permita evitar a las personas difíciles"
+      ]
+    },
+    {
+      "number": 20,
+      "reference": "Mateo 7:14",
+      "question": "Según Mateo 7:14, ¿cómo se describe específicamente la puerta de acceso a la vida?",
+      "options": [
+        "muy ancha",
+        "muy angosta",
+        "fácil de encontrar para todos",
+        "reservada a los maestros religiosos"
+      ]
+    },
+    {
+      "number": 21,
+      "reference": "Mateo 7:16",
+      "question": "Según Mateo 7:16, ¿por qué criterio dice Jesús que pueden identificarse los falsos profetas?",
+      "options": [
+        "por su cantidad de seguidores",
+        "por su apariencia",
+        "por su fruto",
+        "por su conocimiento de tradiciones"
+      ]
+    },
+    {
+      "number": 22,
+      "reference": "Mateo 7:21",
+      "question": "Según Mateo 7:21, ¿qué hacen quienes entran en el reino del cielo, según la descripción de Jesús?",
+      "options": [
+        "repiten un título religioso sin hacer nada más",
+        "basan todo en actividades extraordinarias",
+        "hacen la voluntad de mi Padre",
+        "dependen de conocer a líderes religiosos"
+      ]
+    },
+    {
+      "number": 23,
+      "reference": "Mateo 7:24",
+      "question": "Según Mateo 7:24, además de escuchar la enseñanza de Jesús, ¿qué hace con ella la persona descrita como sabia?",
+      "options": [
+        "la sigue",
+        "la memoriza sin aplicarla",
+        "la admira sin obedecerla",
+        "la escucha sin hacerle caso"
+      ]
+    },
+    {
+      "number": 24,
+      "reference": "Mateo 7:29",
+      "question": "Según Mateo 7:29, ¿con qué característica enseñaba Jesús, a diferencia de los maestros de la ley religiosa?",
+      "options": [
+        "con palabras incomprensibles",
+        "con verdadera autoridad",
+        "con continuas dudas",
+        "con rechazo de toda referencia a la ley"
+      ]
+    }
+  ],
+  "fillBlank": [
+    {
+      "number": 1,
+      "reference": "Mateo 5:13",
+      "phrase": "«Ustedes son la ___ de la tierra. Pero ¿para qué sirve la sal si ha perdido su sabor?» (NTV)"
+    },
+    {
+      "number": 2,
+      "reference": "Mateo 5:14",
+      "phrase": "«Ustedes son la ___ del mundo, como una ciudad en lo alto de una colina que no puede esconderse.» (NTV)"
+    },
+    {
+      "number": 3,
+      "reference": "Mateo 5:44",
+      "phrase": "«Pero yo digo: ¡ama a tus ___! ¡Ora por los que te persiguen!» (NTV)"
+    },
+    {
+      "number": 4,
+      "reference": "Mateo 5:44",
+      "phrase": "«Pero yo digo: ¡ama a tus enemigos! ¡Ora por los que te ___!» (NTV)"
+    },
+    {
+      "number": 5,
+      "reference": "Mateo 6:9",
+      "phrase": "«Padre nuestro que estás en el ___, que sea siempre santo tu nombre.» (NTV)"
+    },
+    {
+      "number": 6,
+      "reference": "Mateo 6:11",
+      "phrase": "«Danos hoy el ___ que necesitamos, y perdónanos nuestros pecados.» (NTV)"
+    },
+    {
+      "number": 7,
+      "reference": "Mateo 6:21",
+      "phrase": "«Donde esté tu ___, allí estarán también los deseos de tu corazón.» (NTV)"
+    },
+    {
+      "number": 8,
+      "reference": "Mateo 6:34",
+      "phrase": "«Así que no se preocupen por el ___, porque el día de mañana traerá sus propias preocupaciones.» (NTV)"
+    },
+    {
+      "number": 9,
+      "reference": "Mateo 7:1",
+      "phrase": "«No juzguen a los ___, y no serán juzgados.» (NTV)"
+    },
+    {
+      "number": 10,
+      "reference": "Mateo 7:7",
+      "phrase": "«Sigue pidiendo y ___ lo que pides; sigue buscando y encontrarás.» (NTV)"
+    },
+    {
+      "number": 11,
+      "reference": "Mateo 7:20",
+      "phrase": "«Así es, de la misma manera que puedes identificar un árbol por su ___, puedes identificar a la gente por sus acciones.» (NTV)"
+    },
+    {
+      "number": 12,
+      "reference": "Mateo 7:24",
+      "phrase": "«Todo el que escucha mi enseñanza y la sigue es sabio, como la persona que construye su casa sobre una ___ sólida.» (NTV)"
+    },
+    {
+      "number": 13,
+      "reference": "Mateo 5:4",
+      "phrase": "«Dios bendice a los que ___, porque serán consolados.» (NTV)"
+    },
+    {
+      "number": 14,
+      "reference": "Mateo 5:6",
+      "phrase": "«Dios bendice a los que tienen hambre y sed de ___, porque serán saciados.» (NTV)"
+    },
+    {
+      "number": 15,
+      "reference": "Mateo 5:8",
+      "phrase": "«Dios bendice a los que tienen corazón ___, porque ellos verán a Dios.» (NTV)"
+    },
+    {
+      "number": 16,
+      "reference": "Mateo 5:24",
+      "phrase": "«Deja la ofrenda allí en el altar. Anda y ___ con esa persona. Luego ven y presenta tu ofrenda a Dios.» (NTV)"
+    },
+    {
+      "number": 17,
+      "reference": "Mateo 6:10",
+      "phrase": "«Que tu ___ venga pronto. Que se cumpla tu voluntad en la tierra como se cumple en el cielo.» (NTV)"
+    },
+    {
+      "number": 18,
+      "reference": "Mateo 6:12",
+      "phrase": "«Y perdónanos nuestros ___, así como hemos perdonado a los que pecan contra nosotros.» (NTV)"
+    },
+    {
+      "number": 19,
+      "reference": "Mateo 6:13",
+      "phrase": "«No permitas que cedamos ante la ___, sino rescátanos del maligno.» (NTV)"
+    },
+    {
+      "number": 20,
+      "reference": "Mateo 6:24",
+      "phrase": "«Nadie puede servir a dos ___. Pues odiará a uno y amará al otro; será leal a uno y despreciará al otro.» (NTV)"
+    },
+    {
+      "number": 21,
+      "reference": "Mateo 7:5",
+      "phrase": "«Primero quita el ___ de tu ojo; después verás lo suficientemente bien para ocuparte de la astilla en el ojo de tu amigo.» (NTV)"
+    },
+    {
+      "number": 22,
+      "reference": "Mateo 7:6",
+      "phrase": "«No desperdicien lo que es santo en gente que no es santa. ¡No arrojen sus ___ a los cerdos!» (NTV)"
+    },
+    {
+      "number": 23,
+      "reference": "Mateo 7:14",
+      "phrase": "«Pero la puerta de acceso a la vida es muy ___ y el camino es difícil, y son solo unos pocos los que alguna vez lo encuentran.» (NTV)"
+    },
+    {
+      "number": 24,
+      "reference": "Mateo 7:21",
+      "phrase": "«Solo entrarán aquellos que verdaderamente hacen la ___ de mi Padre que está en el cielo.» (NTV)"
+    }
+  ],
+  "analysis": [
+    {
+      "number": 1,
+      "reference": "Mateo 5:13",
+      "question": "Según Mateo 5:13, ¿por qué la sal que «ha perdido su sabor» deja de ser útil?"
+    },
+    {
+      "number": 2,
+      "reference": "Mateo 5:15-16",
+      "question": "Según Mateo 5:15-16, ¿qué enseña la lámpara sobre las buenas acciones?"
+    },
+    {
+      "number": 3,
+      "reference": "Mateo 5:21-22",
+      "question": "Según Mateo 5:21-22, ¿por qué Jesús no se limita a decir «No asesines»?"
+    },
+    {
+      "number": 4,
+      "reference": "Mateo 5:23-24",
+      "question": "Según Mateo 5:23-24, ¿por qué Jesús dice «reconcíliate con esa persona» antes de presentar la ofrenda?"
+    },
+    {
+      "number": 5,
+      "reference": "Mateo 5:38-39",
+      "question": "Según Mateo 5:38-39, ¿en qué se diferencia «ofrécele también la otra mejilla» de devolver la bofetada?"
+    },
+    {
+      "number": 6,
+      "reference": "Mateo 5:41",
+      "question": "Según Mateo 5:41, ¿qué enseña la instrucción «llévalo dos» cuando el soldado exige un kilómetro?"
+    },
+    {
+      "number": 7,
+      "reference": "Mateo 5:44-46",
+      "question": "Según Mateo 5:44-46, ¿por qué «ama a tus enemigos» va más allá de amar a quienes te aman?"
+    },
+    {
+      "number": 8,
+      "reference": "Mateo 5:44-45",
+      "question": "Según Mateo 5:44-45, ¿por qué amar a tus enemigos muestra que actúas como «verdadero hijo de tu Padre»?"
+    },
+    {
+      "number": 9,
+      "reference": "Mateo 6:1-4",
+      "question": "Según Mateo 6:1-4, ¿por qué buscar la admiración de los demás hace perder «la recompensa de su Padre»?"
+    },
+    {
+      "number": 10,
+      "reference": "Mateo 6:5-6",
+      "question": "Según Mateo 6:5-6, ¿por qué Jesús dice «ora a tu Padre en privado» en lugar de imitar a los hipócritas?"
+    },
+    {
+      "number": 11,
+      "reference": "Mateo 6:7-8",
+      "question": "Según Mateo 6:7-8, ¿por qué Jesús rechaza la idea de recibir respuesta solo por «repetir las mismas palabras»?"
+    },
+    {
+      "number": 12,
+      "reference": "Mateo 6:16-18",
+      "question": "Según Mateo 6:16-18, ¿por qué Jesús dice «péinate y lávate la cara» cuando ayunes?"
+    },
+    {
+      "number": 13,
+      "reference": "Mateo 6:21",
+      "question": "Según Mateo 6:21, ¿qué relación hay entre tu tesoro y «los deseos de tu corazón»?"
+    },
+    {
+      "number": 14,
+      "reference": "Mateo 6:24",
+      "question": "Según Mateo 6:24, ¿por qué «servir a dos amos» impide ser leal a ambos?"
+    },
+    {
+      "number": 15,
+      "reference": "Mateo 6:26",
+      "question": "Según Mateo 6:26, ¿cómo ayuda el ejemplo de los pájaros a confiar en el Padre celestial?"
+    },
+    {
+      "number": 16,
+      "reference": "Mateo 6:31-33",
+      "question": "Según Mateo 6:31-33, ¿qué significa buscar el reino de Dios «por encima de todo lo demás»?"
+    },
+    {
+      "number": 17,
+      "reference": "Mateo 7:3-5",
+      "question": "Según Mateo 7:3-5, ¿por qué es hipócrita preocuparse por la astilla del amigo sin quitar el tronco de tu ojo?"
+    },
+    {
+      "number": 18,
+      "reference": "Mateo 7:5",
+      "question": "Según Mateo 7:5, ¿cómo ayuda quitar «el tronco de tu ojo» a ocuparse de la astilla del amigo?"
+    },
+    {
+      "number": 19,
+      "reference": "Mateo 7:15-16",
+      "question": "Según Mateo 7:15-16, ¿por qué no basta con que los falsos profetas parezcan «ovejas inofensivas»?"
+    },
+    {
+      "number": 20,
+      "reference": "Mateo 7:16-20",
+      "question": "Según Mateo 7:16-20, ¿qué relación hay entre el fruto de un árbol y las acciones de la gente?"
+    },
+    {
+      "number": 21,
+      "reference": "Mateo 7:21",
+      "question": "Según Mateo 7:21, ¿por qué llamar «¡Señor, Señor!» a Jesús no basta para entrar en el reino del cielo?"
+    },
+    {
+      "number": 22,
+      "reference": "Mateo 7:24-26",
+      "question": "Según Mateo 7:24-26, ¿por qué escuchar la enseñanza de Jesús no basta para ser sabio?"
+    },
+    {
+      "number": 23,
+      "reference": "Mateo 7:24-25",
+      "question": "Según Mateo 7:24-25, ¿por qué Jesús compara al que escucha su enseñanza y «la sigue» con quien construye sobre roca?"
+    },
+    {
+      "number": 24,
+      "reference": "Mateo 7:26-27",
+      "question": "Según Mateo 7:26-27, ¿qué enseña la casa sobre la arena acerca de quien oye la enseñanza y «no la obedece»?"
+    }
+  ]
+};
+
+/* ============================================================
+   CONFIGURACIÓN
+   ============================================================ */
+const SECTIONS = {
+  multipleChoice: { name: "Selección múltiple", label: "SELECCIÓN MÚLTIPLE" },
+  fillBlank:      { name: "Completa la frase",  label: "COMPLETA LA FRASE" },
+  analysis:       { name: "Análisis",           label: "ANÁLISIS" }
+};
+const SECTION_KEYS = Object.keys(SECTIONS);
+const LETTERS = ["A", "B", "C", "D"];
+const STORAGE_KEY = "sermon-monte-participante-v1";
+
+/* ============================================================
+   ESTADO
+   ============================================================ */
+const state = {
+  section: "multipleChoice",
+  index: { multipleChoice: 0, fillBlank: 0, analysis: 0 },
+  used:  { multipleChoice: [], fillBlank: [], analysis: [] },
+  presenting: false
+};
+
+function save() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      section: state.section, index: state.index, used: state.used
+    }));
+  } catch (e) { /* almacenamiento no disponible: se ignora */ }
+}
+function load() {
+  try {
+    const s = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+    if (!s) return;
+    if (SECTIONS[s.section]) state.section = s.section;
+    for (const k of SECTION_KEYS) {
+      const n = questions[k].length;
+      if (s.index && Number.isInteger(s.index[k]) && s.index[k] >= 0 && s.index[k] < n) state.index[k] = s.index[k];
+      if (s.used && Array.isArray(s.used[k])) state.used[k] = s.used[k].filter(x => Number.isInteger(x) && x >= 1 && x <= n);
+    }
+  } catch (e) { /* datos corruptos o sin acceso: se ignora */ }
+}
+
+const list = () => questions[state.section];
+const current = () => list()[state.index[state.section]];
+const isUsed = (sec, num) => state.used[sec].includes(num);
+
+/* ============================================================
+   ELEMENTOS
+   ============================================================ */
+const $ = id => document.getElementById(id);
+const els = {
+  sections: $("sections"), grid: $("grid"), progress: $("progress"),
+  stage: $("stage"), content: $("content"), btnUsed: $("btnUsed"),
+  digitHint: $("digitHint")
+};
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function el(tag, cls, text) {
+  const n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (text != null) n.textContent = text;
+  return n;
+}
+
+function renderSections() {
+  els.sections.innerHTML = "";
+  for (const k of SECTION_KEYS) {
+    const b = el("button", "sec-btn");
+    b.type = "button";
+    b.dataset.key = k;
+    b.setAttribute("aria-pressed", String(k === state.section));
+    b.append(el("span", "name", SECTIONS[k].name));
+    b.append(el("span", "count", `${state.used[k].length}/${questions[k].length} usadas`));
+    b.addEventListener("click", () => setSection(k));
+    els.sections.append(b);
+  }
+}
+
+function renderGrid() {
+  els.grid.innerHTML = "";
+  const sec = state.section;
+  list().forEach((q, i) => {
+    const cell = el("div", "cell");
+    if (isUsed(sec, q.number)) cell.classList.add("used");
+    if (i === state.index[sec]) cell.classList.add("current");
+
+    const num = el("button", "num", String(q.number));
+    num.type = "button";
+    num.setAttribute("aria-label", `Pregunta ${q.number}`);
+    num.addEventListener("click", () => go(i));
+
+    const chk = el("button", "chk", "✓");
+    chk.type = "button";
+    chk.setAttribute("aria-label", `Marcar pregunta ${q.number} como usada`);
+    chk.addEventListener("click", e => { e.stopPropagation(); toggleUsed(q.number); });
+
+    cell.append(num, chk);
+    els.grid.append(cell);
+  });
+  const n = state.used[sec].length;
+  els.progress.textContent = `Usadas: ${n} de ${list().length}`;
+  els.btnUsed.textContent = isUsed(sec, current().number) ? "↺ MARCAR COMO NO USADA" : "✓ MARCAR COMO USADA";
+}
+
+function renderQuestion() {
+  const sec = state.section;
+  const q = current();
+  const c = els.content;
+  c.innerHTML = "";
+
+  c.append(el("div", "q-label", `${SECTIONS[sec].label} · PREGUNTA ${q.number}`));
+  c.append(el("div", "q-ref", q.reference));
+
+  if (sec === "multipleChoice") {
+    c.append(el("p", "q-text", q.question));
+    const ul = el("ul", "options");
+    q.options.forEach((opt, i) => {
+      const li = el("li");
+      li.append(el("span", "letter", LETTERS[i]));
+      li.append(el("span", "opt-text", opt));
+      ul.append(li);
+    });
+    c.append(ul);
+  } else if (sec === "fillBlank") {
+    const p = el("p", "q-text phrase");
+    const parts = q.phrase.split("___");
+    parts.forEach((part, i) => {
+      p.append(document.createTextNode(part));
+      if (i < parts.length - 1) {
+        const b = el("span", "blank");
+        b.setAttribute("aria-label", "espacio en blanco");
+        p.append(b);
+      }
+    });
+    c.append(p);
+  } else {
+    c.append(el("p", "q-text analysis", q.question));
+  }
+
+  c.classList.remove("enter");
+  void c.offsetWidth;            // reinicia la animación
+  c.classList.add("enter");
+  fit();
+}
+
+function renderAll() {
+  document.body.dataset.section = state.section;
+  renderSections();
+  renderGrid();
+  renderQuestion();
+}
+
+/* ------------------------------------------------------------
+   Ajuste automático del tamaño de letra: parte de un tamaño base
+   proporcional al escenario (≈66 px a 1920×1080) y lo reduce
+   hasta que todo el contenido cabe sin desplazamiento.
+   ------------------------------------------------------------ */
+function fit() {
+  const stage = els.stage, c = els.content;
+  const cs = getComputedStyle(stage);
+  const availW = stage.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+  const availH = stage.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+  if (availW <= 0 || availH <= 0) return;
+
+  const base = Math.max(14, Math.min(availW / 26, availH / 14.8));
+  let scale = 1;
+  c.style.fontSize = base + "px";
+  while (scale > 0.35 && (c.scrollHeight > availH || c.scrollWidth > availW + 1)) {
+    scale -= 0.03;
+    c.style.fontSize = (base * scale) + "px";
+  }
+}
+
+/* ============================================================
+   ACCIONES
+   ============================================================ */
+function setSection(k) {
+  if (!SECTIONS[k] || k === state.section) return;
+  state.section = k;
+  save();
+  renderAll();
+}
+
+function go(i) {
+  const n = list().length;
+  if (i < 0 || i >= n) return;            // la navegación no sale de la sección
+  state.index[state.section] = i;
+  save();
+  renderGrid();
+  renderQuestion();
+}
+const next = () => go(state.index[state.section] + 1);
+const prev = () => go(state.index[state.section] - 1);
+const goNumber = num => {
+  const i = list().findIndex(q => q.number === num);
+  if (i >= 0) go(i);
+};
+
+function randomQuestion() {
+  const sec = state.section;
+  const cur = state.index[sec];
+  const all = list().map((q, i) => i).filter(i => i !== cur);
+  const unused = all.filter(i => !isUsed(sec, list()[i].number));
+  const pool = unused.length ? unused : all;   // prioriza las no usadas
+  if (!pool.length) return;
+  go(pool[Math.floor(Math.random() * pool.length)]);
+}
+
+function toggleUsed(num) {
+  const sec = state.section;
+  const arr = state.used[sec];
+  const at = arr.indexOf(num);
+  if (at >= 0) arr.splice(at, 1); else arr.push(num);
+  save();
+  renderSections();
+  renderGrid();
+}
+
+function resetProgress() {
+  if (!confirm("¿Reiniciar el progreso?\n\nSe desmarcarán todas las preguntas usadas en las tres secciones.")) return;
+  for (const k of SECTION_KEYS) { state.used[k] = []; state.index[k] = 0; }
+  save();
+  renderAll();
+}
+
+function setPresenting(on) {
+  state.presenting = on;
+  document.body.classList.toggle("presenting", on);
+  if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+  requestAnimationFrame(fit);
+}
+
+/* Pantalla completa (opcional; el modo presentación funciona sin ella) */
+function isFullscreen() {
+  return !!(document.fullscreenElement || document.webkitFullscreenElement);
+}
+function toggleFullscreen() {
+  try {
+    if (isFullscreen()) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else {
+      const r = document.documentElement;
+      const req = r.requestFullscreen || r.webkitRequestFullscreen;
+      if (req) {
+        const p = req.call(r);
+        if (p && p.catch) p.catch(() => {});
+      }
+    }
+  } catch (e) { /* el navegador no lo permite: se ignora */ }
+}
+document.addEventListener("fullscreenchange", () => requestAnimationFrame(fit));
+document.addEventListener("webkitfullscreenchange", () => requestAnimationFrame(fit));
+
+/* ============================================================
+   EVENTOS
+   ============================================================ */
+$("btnPresent").addEventListener("click", () => setPresenting(true));
+$("btnRandom").addEventListener("click", randomQuestion);
+$("btnPrev").addEventListener("click", prev);
+$("btnNext").addEventListener("click", next);
+$("btnUsed").addEventListener("click", () => toggleUsed(current().number));
+$("btnReset").addEventListener("click", resetProgress);
+$("btnFullscreen").addEventListener("click", toggleFullscreen);
+$("pPrev").addEventListener("click", prev);
+$("pNext").addEventListener("click", next);
+$("pFull").addEventListener("click", toggleFullscreen);
+$("pExit").addEventListener("click", () => setPresenting(false));
+
+/* Selección por número: 1–9 inmediato salvo 1 y 2, que esperan un
+   segundo dígito (10–24) durante un instante. */
+let digitBuf = "", digitTimer = null;
+function showDigitHint(t) {
+  els.digitHint.textContent = t;
+  els.digitHint.classList.toggle("show", !!t);
+}
+function commitDigits() {
+  clearTimeout(digitTimer);
+  const n = parseInt(digitBuf, 10);
+  digitBuf = "";
+  showDigitHint("");
+  if (n >= 1 && n <= list().length) goNumber(n);
+}
+function onDigit(d) {
+  clearTimeout(digitTimer);
+  if (digitBuf === "") {
+    if (d === 0) return;
+    digitBuf = String(d);
+    if (d * 10 > list().length) { commitDigits(); return; }
+    showDigitHint(`Pregunta ${digitBuf}…`);
+    digitTimer = setTimeout(commitDigits, 800);
+  } else {
+    const n = parseInt(digitBuf + d, 10);
+    if (n <= list().length) { digitBuf += d; commitDigits(); }
+    else { commitDigits(); onDigit(d); }
+  }
+}
+
+document.addEventListener("keydown", e => {
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  const k = e.key;
+
+  if (/^[0-9]$/.test(k)) { e.preventDefault(); onDigit(parseInt(k, 10)); return; }
+
+  switch (k) {
+    case "ArrowRight": case "PageDown":
+      e.preventDefault(); next(); break;
+    case "ArrowLeft": case "PageUp":
+      e.preventDefault(); prev(); break;
+    case "Escape":
+      if (state.presenting) { e.preventDefault(); setPresenting(false); }
+      break;
+    case "s": case "S":
+      e.preventDefault(); setPresenting(false); break;
+    case "f": case "F":
+      e.preventDefault(); toggleFullscreen(); break;
+    case "p": case "P":
+      e.preventDefault(); setPresenting(!state.presenting); break;
+    case "Enter":
+      if (e.target && e.target.tagName === "BUTTON") return;   // deja que el botón haga clic
+      e.preventDefault(); setPresenting(true); break;
+    case "r": case "R":
+      e.preventDefault(); randomQuestion(); break;
+    case "u": case "U":
+      e.preventDefault(); toggleUsed(current().number); break;
+  }
+});
+
+/* Oculta el cursor en presentación tras 2 s sin mover el ratón */
+let mouseTimer = null;
+document.addEventListener("mousemove", () => {
+  document.body.classList.add("mouse-active");
+  document.body.classList.remove("hide-cursor");
+  clearTimeout(mouseTimer);
+  mouseTimer = setTimeout(() => {
+    document.body.classList.remove("mouse-active");
+    if (state.presenting) document.body.classList.add("hide-cursor");
+  }, 2000);
+});
+
+window.addEventListener("resize", () => requestAnimationFrame(fit));
+if (window.ResizeObserver) new ResizeObserver(() => fit()).observe(els.stage);
+
+/* ============================================================
+   INICIO
+   ============================================================ */
+load();
+renderAll();
+</script>
+</body>
+</html>
