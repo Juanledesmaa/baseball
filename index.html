@@ -6,34 +6,62 @@
 <title>El Sermón del Monte · Preguntas</title>
 <style>
   /* ============================================================
-     ESTILOS
+     ESTILOS — paleta inspirada en un estadio de noche:
+     cielo nocturno, luces del estadio, atardecer dorado,
+     césped verde y arcilla del diamante.
      ============================================================ */
   :root {
-    --bg: #0a0f1c;
-    --bg-2: #111a2e;
-    --panel: #141e33;
-    --panel-2: #1b2742;
-    --line: #2a3a5c;
-    --text: #f5f7fb;
-    --muted: #9aa8c4;
-    --dim: #5d6b88;
-    --used: #2b7a4b;
-    --accent: #f5c451;          /* cambia según la sección */
-    --accent-ink: #1a1405;
+    --night: #06101f;
+    --glass: rgba(8, 18, 36, .62);
+    --glass-2: rgba(16, 30, 54, .72);
+    --line: rgba(255, 255, 255, .14);
+    --line-2: rgba(255, 255, 255, .26);
+    --text: #f6f8fc;
+    --muted: #b4c0d6;
+    --gold: #f7c454;
+    --grass: #7fdc6c;
+    --clay: #ff8f52;
+    --used: #3f9a4f;
+    --accent: var(--gold);       /* cambia según la sección */
+    --accent-ink: #1f1602;
   }
-  body[data-section="multipleChoice"] { --accent: #f5c451; --accent-ink: #1f1703; }
-  body[data-section="fillBlank"]      { --accent: #4fd1c5; --accent-ink: #032220; }
-  body[data-section="analysis"]       { --accent: #b49cff; --accent-ink: #160d33; }
+  body[data-section="multipleChoice"] { --accent: var(--gold);  --accent-ink: #1f1602; }
+  body[data-section="fillBlank"]      { --accent: var(--grass); --accent-ink: #0a2105; }
+  body[data-section="analysis"]       { --accent: var(--clay);  --accent-ink: #2a0f02; }
 
   * { box-sizing: border-box; }
   html, body { height: 100%; margin: 0; }
   body {
-    background: var(--bg);
+    background: var(--night);
     color: var(--text);
     font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Roboto, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     overflow: hidden;
+    position: relative;
   }
+  /* Fondo: foto del estadio, muy desenfocada, con velo oscuro para contraste */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: -60px;
+    background: url("data:image/jpeg;base64,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") center / cover no-repeat;
+    filter: blur(14px) saturate(1.15);
+    z-index: -2;
+  }
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 70% at 50% 45%, rgba(4, 10, 22, .38), rgba(4, 10, 22, .72)),
+      linear-gradient(180deg, rgba(4, 10, 22, .2), rgba(4, 10, 22, .3));
+    z-index: -1;
+  }
+  body.presenting::after {
+    background:
+      radial-gradient(ellipse 85% 75% at 50% 50%, rgba(4, 10, 22, .58), rgba(4, 10, 22, .74));
+  }
+
   button { font: inherit; color: inherit; cursor: pointer; }
   button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 
@@ -49,9 +77,12 @@
     gap: 16px;
     padding: 12px 20px;
     border-bottom: 1px solid var(--line);
-    background: var(--bg-2);
+    background: rgba(6, 14, 28, .55);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
   }
-  .brand { font-weight: 700; font-size: 18px; letter-spacing: .02em; white-space: nowrap; }
+  .brand { font-weight: 800; font-size: 18px; letter-spacing: .02em; white-space: nowrap; }
+  .brand .dot { color: var(--accent); }
   .brand small { color: var(--muted); font-weight: 500; margin-left: 8px; }
   .topbar .spacer { flex: 1; }
 
@@ -65,7 +96,9 @@
     overflow-y: auto;
     padding: 18px;
     border-right: 1px solid var(--line);
-    background: var(--panel);
+    background: var(--glass);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
     display: flex;
     flex-direction: column;
     gap: 18px;
@@ -73,9 +106,9 @@
   .panel h2 {
     margin: 0 0 8px;
     font-size: 12px;
-    letter-spacing: .14em;
+    letter-spacing: .16em;
     color: var(--muted);
-    font-weight: 700;
+    font-weight: 800;
   }
 
   /* Pestañas de sección */
@@ -83,17 +116,22 @@
   .sec-btn {
     display: flex; align-items: center; justify-content: space-between;
     padding: 12px 14px;
-    border-radius: 10px;
+    border-radius: 12px;
     border: 2px solid var(--line);
-    background: var(--panel-2);
-    font-size: 16px; font-weight: 600; text-align: left;
+    background: var(--glass-2);
+    font-size: 16px; font-weight: 700; text-align: left;
+  }
+  .sec-btn .name { display: flex; align-items: center; gap: 10px; }
+  .sec-btn .name::before {
+    content: ""; width: 10px; height: 10px; border-radius: 50%;
+    background: var(--c); box-shadow: 0 0 10px var(--c);
   }
   .sec-btn .count { font-size: 13px; color: var(--muted); font-weight: 500; }
-  .sec-btn[data-key="multipleChoice"] { --c: #f5c451; }
-  .sec-btn[data-key="fillBlank"]      { --c: #4fd1c5; }
-  .sec-btn[data-key="analysis"]       { --c: #b49cff; }
+  .sec-btn[data-key="multipleChoice"] { --c: var(--gold); }
+  .sec-btn[data-key="fillBlank"]      { --c: var(--grass); }
+  .sec-btn[data-key="analysis"]       { --c: var(--clay); }
   .sec-btn:hover { border-color: var(--c); }
-  .sec-btn[aria-pressed="true"] { border-color: var(--c); background: color-mix(in srgb, var(--c) 18%, var(--panel-2)); }
+  .sec-btn[aria-pressed="true"] { border-color: var(--c); background: color-mix(in srgb, var(--c) 20%, rgba(10, 20, 38, .8)); }
   .sec-btn[aria-pressed="true"] .name { color: var(--c); }
 
   /* Cuadrícula de preguntas */
@@ -108,14 +146,15 @@
     aspect-ratio: 1 / 1;
     border-radius: 10px;
     border: 2px solid var(--line);
-    background: var(--panel-2);
-    font-size: 20px; font-weight: 700;
+    background: var(--glass-2);
+    font-size: 20px; font-weight: 800;
+    font-variant-numeric: tabular-nums;
     display: grid; place-items: center;
   }
   .num:hover { border-color: var(--accent); }
   .cell.used .num {
-    background: color-mix(in srgb, var(--used) 22%, var(--panel));
-    border-color: color-mix(in srgb, var(--used) 60%, var(--line));
+    background: color-mix(in srgb, var(--used) 26%, rgba(8, 18, 36, .8));
+    border-color: color-mix(in srgb, var(--used) 70%, transparent);
     color: var(--muted);
     text-decoration: line-through;
     text-decoration-thickness: 2px;
@@ -125,19 +164,19 @@
     border-color: var(--accent);
     color: var(--accent-ink);
     text-decoration: none;
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 35%, transparent);
+    box-shadow: 0 0 18px color-mix(in srgb, var(--accent) 55%, transparent);
   }
   .chk {
     position: absolute; top: -6px; right: -6px;
     width: 24px; height: 24px;
     border-radius: 50%;
-    border: 2px solid var(--line);
-    background: var(--bg);
+    border: 2px solid var(--line-2);
+    background: var(--night);
     color: transparent;
     font-size: 13px; font-weight: 900; line-height: 1;
     display: grid; place-items: center;
     padding: 0;
-    opacity: .55;
+    opacity: .6;
   }
   .cell:hover .chk, .chk:focus-visible { opacity: 1; color: var(--muted); }
   .cell.used .chk { opacity: 1; background: var(--used); border-color: var(--used); color: #fff; }
@@ -148,18 +187,20 @@
   .actions { display: grid; gap: 8px; }
   .btn {
     padding: 12px 14px;
-    border-radius: 10px;
+    border-radius: 12px;
     border: 2px solid var(--line);
-    background: var(--panel-2);
-    font-size: 15px; font-weight: 700; letter-spacing: .04em;
+    background: var(--glass-2);
+    font-size: 15px; font-weight: 800; letter-spacing: .05em;
   }
   .btn:hover { border-color: var(--accent); }
   .btn.primary {
     background: var(--accent); border-color: var(--accent); color: var(--accent-ink);
     font-size: 18px; padding: 14px;
+    box-shadow: 0 6px 24px color-mix(in srgb, var(--accent) 35%, transparent);
   }
   .btn.primary:hover { filter: brightness(1.08); }
-  .btn.danger { color: #ff9a9a; }
+  .btn.reveal { border-color: color-mix(in srgb, var(--accent) 60%, transparent); color: var(--accent); }
+  .btn.danger { color: #ffa6a6; }
   .btn.danger:hover { border-color: #ff6b6b; }
   .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
@@ -167,7 +208,7 @@
   .help kbd {
     display: inline-block; min-width: 22px; text-align: center;
     padding: 1px 6px; border-radius: 5px;
-    border: 1px solid var(--line); background: var(--bg);
+    border: 1px solid var(--line-2); background: rgba(0, 0, 0, .35);
     color: var(--text); font-family: inherit; font-size: 12px;
   }
 
@@ -181,50 +222,57 @@
     position: relative;
     flex: 1;
     min-height: 0;
-    border-radius: 16px;
-    background:
-      radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--accent) 7%, transparent), transparent 60%),
-      var(--bg);
+    border-radius: 18px;
+    background: rgba(5, 12, 26, .5);
     border: 1px solid var(--line);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, .45);
     overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 4% 5%;
   }
+  /* Línea de cal en la parte superior, con el color de la sección */
+  .stage::before {
+    content: "";
+    position: absolute; left: 0; right: 0; top: 0; height: 4px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: .85;
+  }
   .content {
     width: 100%;
     max-width: 28em;
     line-height: 1.25;
   }
-  .content.enter { animation: fadeIn .18s ease-out; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
   .q-label {
     font-size: .42em;
     font-weight: 800;
-    letter-spacing: .12em;
+    letter-spacing: .14em;
     text-transform: uppercase;
     color: var(--accent);
     margin-bottom: .5em;
+    text-shadow: 0 0 .6em color-mix(in srgb, var(--accent) 40%, transparent);
   }
   .q-ref {
     display: inline-block;
     font-size: .42em;
-    font-weight: 600;
-    color: var(--muted);
-    border: .08em solid var(--line);
+    font-weight: 700;
+    color: var(--text);
+    background: rgba(255, 255, 255, .08);
+    border: .07em solid var(--line-2);
     border-radius: 2em;
-    padding: .2em .8em;
+    padding: .2em .85em;
     margin-bottom: 1.1em;
   }
   .q-text {
     font-size: 1em;
-    font-weight: 650;
+    font-weight: 700;
     margin: 0;
     text-wrap: pretty;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, .45);
   }
-  .q-text.phrase { font-weight: 550; line-height: 1.45; }
+  .q-text.phrase { font-weight: 600; line-height: 1.45; }
   .q-text.analysis { font-size: 1.08em; }
   .blank {
     display: inline-block;
@@ -247,10 +295,10 @@
     align-items: baseline;
     gap: .6em;
     padding: .38em .6em;
-    border-radius: .35em;
-    background: color-mix(in srgb, var(--text) 5%, transparent);
-    border: .04em solid color-mix(in srgb, var(--text) 10%, transparent);
-    font-weight: 500;
+    border-radius: .4em;
+    background: rgba(255, 255, 255, .07);
+    border: .04em solid rgba(255, 255, 255, .14);
+    font-weight: 600;
   }
   .options .letter {
     flex: none;
@@ -261,9 +309,70 @@
     place-items: center;
     font-weight: 800;
     font-size: .9em;
-    background: color-mix(in srgb, var(--text) 12%, transparent);
+    background: rgba(255, 255, 255, .16);
     transform: translateY(.18em);
   }
+
+  /* Animación al revelar */
+  .revealed .q-ref, .revealed .q-text, .revealed .options li {
+    animation: rise .38s cubic-bezier(.2, .7, .2, 1) both;
+  }
+  .revealed .q-text { animation-delay: .05s; }
+  .revealed .options li:nth-child(1) { animation-delay: .14s; }
+  .revealed .options li:nth-child(2) { animation-delay: .20s; }
+  .revealed .options li:nth-child(3) { animation-delay: .26s; }
+  .revealed .options li:nth-child(4) { animation-delay: .32s; }
+  .measuring, .measuring * { animation: none !important; }
+  @keyframes rise { from { opacity: 0; transform: translateY(.4em); } to { opacity: 1; transform: none; } }
+
+  /* ---------- Portada (antes de revelar) ---------- */
+  .cover {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: rise .25s ease-out both;
+  }
+  .cover .q-label { margin-bottom: .9em; }
+  .cover-caption {
+    font-size: .5em;
+    font-weight: 800;
+    letter-spacing: .3em;
+    color: var(--muted);
+    margin-bottom: .25em;
+  }
+  /* Número estilo marcador del estadio */
+  .cover-num {
+    font-size: 3.4em;
+    line-height: 1;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    color: var(--accent);
+    min-width: 1.9em;
+    padding: .12em .3em;
+    border-radius: .14em;
+    background: rgba(0, 0, 0, .45);
+    border: .025em solid color-mix(in srgb, var(--accent) 55%, transparent);
+    text-shadow: 0 0 .25em color-mix(in srgb, var(--accent) 60%, transparent);
+    box-shadow: inset 0 0 .4em rgba(0, 0, 0, .6), 0 0 .5em color-mix(in srgb, var(--accent) 18%, transparent);
+    margin-bottom: .55em;
+  }
+  .reveal-btn {
+    font-size: .52em;
+    font-weight: 900;
+    letter-spacing: .12em;
+    padding: .7em 1.8em;
+    border-radius: 3em;
+    border: 0;
+    background: var(--accent);
+    color: var(--accent-ink);
+    box-shadow: 0 .3em 1.2em color-mix(in srgb, var(--accent) 45%, transparent);
+    transition: transform .12s, filter .12s;
+  }
+  .reveal-btn:hover { transform: translateY(-2px); filter: brightness(1.08); }
+  .reveal-btn:active { transform: translateY(1px); }
+  .cover-hint { font-size: .3em; color: var(--muted); margin-top: 1em; }
+  body.presenting .cover-hint { display: none; }
 
   /* Controles flotantes del modo presentación */
   .pres-controls {
@@ -271,23 +380,23 @@
     right: 18px; bottom: 16px;
     display: none;
     gap: 8px;
-    opacity: .18;
+    opacity: .2;
     transition: opacity .25s;
     z-index: 10;
   }
-  .pres-controls:hover, body.mouse-active .pres-controls { opacity: .85; }
+  .pres-controls:hover, body.mouse-active .pres-controls { opacity: .9; }
   .pres-controls button {
     padding: 8px 14px;
     border-radius: 8px;
-    border: 1px solid var(--line);
-    background: var(--panel);
-    font-size: 14px; font-weight: 600;
+    border: 1px solid var(--line-2);
+    background: rgba(8, 18, 36, .8);
+    font-size: 14px; font-weight: 700;
   }
   .digit-hint {
     position: fixed; left: 50%; top: 18px; transform: translateX(-50%);
     padding: 8px 16px; border-radius: 10px;
-    background: var(--panel); border: 1px solid var(--accent);
-    color: var(--accent); font-weight: 700; font-size: 18px;
+    background: rgba(8, 18, 36, .9); border: 1px solid var(--accent);
+    color: var(--accent); font-weight: 800; font-size: 18px;
     display: none; z-index: 11;
   }
   .digit-hint.show { display: block; }
@@ -298,7 +407,11 @@
   body.presenting .app { grid-template-rows: 1fr; }
   body.presenting .main { grid-template-columns: 1fr; }
   body.presenting .stage-wrap { padding: 0; }
-  body.presenting .stage { border: 0; border-radius: 0; padding: 3.5vh 5vw; }
+  body.presenting .stage {
+    border: 0; border-radius: 0; box-shadow: none;
+    background: transparent;
+    padding: 3.5vh 5vw;
+  }
   body.presenting .pres-controls { display: flex; }
   body.presenting.hide-cursor, body.presenting.hide-cursor * { cursor: none; }
 
@@ -312,13 +425,16 @@
     .brand small { display: none; }
     .num { aspect-ratio: auto; height: 56px; }
   }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
 </style>
 </head>
 <body data-section="multipleChoice">
 
 <div class="app">
   <header class="topbar">
-    <div class="brand">El Sermón del Monte <small>Mateo 5-7 · Nueva Traducción Viviente</small></div>
+    <div class="brand">El Sermón del Monte<span class="dot"> ·</span> <small>Mateo 5-7 · Nueva Traducción Viviente</small></div>
     <div class="spacer"></div>
     <button class="btn" id="btnFullscreen" type="button">PANTALLA COMPLETA</button>
   </header>
@@ -338,6 +454,7 @@
 
       <section class="actions">
         <button class="btn primary" id="btnPresent" type="button">▶ PRESENTAR</button>
+        <button class="btn reveal" id="btnReveal" type="button">👁 REVELAR PREGUNTA</button>
         <button class="btn" id="btnRandom" type="button">🎲 PREGUNTA ALEATORIA</button>
         <div class="row">
           <button class="btn" id="btnPrev" type="button">◀ ANTERIOR</button>
@@ -349,6 +466,7 @@
 
       <section class="help">
         <h2>TECLADO</h2>
+        <kbd>Espacio</kbd> revelar / ocultar<br>
         <kbd>→</kbd> / <kbd>←</kbd> siguiente / anterior<br>
         <kbd>1</kbd>–<kbd>24</kbd> ir a una pregunta<br>
         <kbd>P</kbd> o <kbd>Enter</kbd> presentar<br>
@@ -370,6 +488,7 @@
 <div class="pres-controls" id="presControls">
   <button type="button" id="pPrev">◀</button>
   <button type="button" id="pNext">▶</button>
+  <button type="button" id="pReveal">👁 Revelar</button>
   <button type="button" id="pFull">⛶</button>
   <button type="button" id="pExit">✕ Selector (Esc)</button>
 </div>
@@ -915,7 +1034,8 @@ const state = {
   section: "multipleChoice",
   index: { multipleChoice: 0, fillBlank: 0, analysis: 0 },
   used:  { multipleChoice: [], fillBlank: [], analysis: [] },
-  presenting: false
+  presenting: false,
+  revealed: false          // cada pregunta empieza oculta
 };
 
 function save() {
@@ -949,7 +1069,7 @@ const $ = id => document.getElementById(id);
 const els = {
   sections: $("sections"), grid: $("grid"), progress: $("progress"),
   stage: $("stage"), content: $("content"), btnUsed: $("btnUsed"),
-  digitHint: $("digitHint")
+  btnReveal: $("btnReveal"), pReveal: $("pReveal"), digitHint: $("digitHint")
 };
 
 /* ============================================================
@@ -1002,11 +1122,38 @@ function renderGrid() {
   els.btnUsed.textContent = isUsed(sec, current().number) ? "↺ MARCAR COMO NO USADA" : "✓ MARCAR COMO USADA";
 }
 
+function renderRevealButtons() {
+  els.btnReveal.textContent = state.revealed ? "🙈 OCULTAR PREGUNTA" : "👁 REVELAR PREGUNTA";
+  els.pReveal.textContent = state.revealed ? "🙈 Ocultar" : "👁 Revelar";
+}
+
+/* Portada: sección y número; el contenido aparece al revelar */
+function renderCover(c, sec, q) {
+  const cover = el("div", "cover");
+  cover.append(el("div", "q-label", SECTIONS[sec].label));
+  cover.append(el("div", "cover-caption", "PREGUNTA"));
+  cover.append(el("div", "cover-num", String(q.number)));
+  const btn = el("button", "reveal-btn", "REVELAR PREGUNTA");
+  btn.type = "button";
+  btn.addEventListener("click", () => setRevealed(true));
+  cover.append(btn);
+  cover.append(el("div", "cover-hint", "o pulsa Espacio"));
+  c.append(cover);
+}
+
 function renderQuestion() {
   const sec = state.section;
   const q = current();
   const c = els.content;
   c.innerHTML = "";
+  c.classList.toggle("revealed", state.revealed);
+  renderRevealButtons();
+
+  if (!state.revealed) {
+    renderCover(c, sec, q);
+    fit();
+    return;
+  }
 
   c.append(el("div", "q-label", `${SECTIONS[sec].label} · PREGUNTA ${q.number}`));
   c.append(el("div", "q-ref", q.reference));
@@ -1036,10 +1183,6 @@ function renderQuestion() {
   } else {
     c.append(el("p", "q-text analysis", q.question));
   }
-
-  c.classList.remove("enter");
-  void c.offsetWidth;            // reinicia la animación
-  c.classList.add("enter");
   fit();
 }
 
@@ -1064,11 +1207,13 @@ function fit() {
 
   const base = Math.max(14, Math.min(availW / 26, availH / 14.8));
   let scale = 1;
+  c.classList.add("measuring");          // mide sin la animación de entrada
   c.style.fontSize = base + "px";
   while (scale > 0.35 && (c.scrollHeight > availH || c.scrollWidth > availW + 1)) {
     scale -= 0.03;
     c.style.fontSize = (base * scale) + "px";
   }
+  c.classList.remove("measuring");
 }
 
 /* ============================================================
@@ -1077,6 +1222,7 @@ function fit() {
 function setSection(k) {
   if (!SECTIONS[k] || k === state.section) return;
   state.section = k;
+  state.revealed = false;
   save();
   renderAll();
 }
@@ -1085,6 +1231,7 @@ function go(i) {
   const n = list().length;
   if (i < 0 || i >= n) return;            // la navegación no sale de la sección
   state.index[state.section] = i;
+  state.revealed = false;                 // cada pregunta nueva empieza oculta
   save();
   renderGrid();
   renderQuestion();
@@ -1095,6 +1242,13 @@ const goNumber = num => {
   const i = list().findIndex(q => q.number === num);
   if (i >= 0) go(i);
 };
+
+function setRevealed(on) {
+  if (state.revealed === on) return;
+  state.revealed = on;
+  renderQuestion();
+}
+const toggleReveal = () => setRevealed(!state.revealed);
 
 function randomQuestion() {
   const sec = state.section;
@@ -1119,6 +1273,7 @@ function toggleUsed(num) {
 function resetProgress() {
   if (!confirm("¿Reiniciar el progreso?\n\nSe desmarcarán todas las preguntas usadas en las tres secciones.")) return;
   for (const k of SECTION_KEYS) { state.used[k] = []; state.index[k] = 0; }
+  state.revealed = false;
   save();
   renderAll();
 }
@@ -1155,6 +1310,7 @@ document.addEventListener("webkitfullscreenchange", () => requestAnimationFrame(
    EVENTOS
    ============================================================ */
 $("btnPresent").addEventListener("click", () => setPresenting(true));
+$("btnReveal").addEventListener("click", toggleReveal);
 $("btnRandom").addEventListener("click", randomQuestion);
 $("btnPrev").addEventListener("click", prev);
 $("btnNext").addEventListener("click", next);
@@ -1163,6 +1319,7 @@ $("btnReset").addEventListener("click", resetProgress);
 $("btnFullscreen").addEventListener("click", toggleFullscreen);
 $("pPrev").addEventListener("click", prev);
 $("pNext").addEventListener("click", next);
+$("pReveal").addEventListener("click", toggleReveal);
 $("pFull").addEventListener("click", toggleFullscreen);
 $("pExit").addEventListener("click", () => setPresenting(false));
 
@@ -1202,6 +1359,8 @@ document.addEventListener("keydown", e => {
   if (/^[0-9]$/.test(k)) { e.preventDefault(); onDigit(parseInt(k, 10)); return; }
 
   switch (k) {
+    case " ":
+      e.preventDefault(); toggleReveal(); break;   // evita además el clic del botón enfocado
     case "ArrowRight": case "PageDown":
       e.preventDefault(); next(); break;
     case "ArrowLeft": case "PageUp":
@@ -1217,13 +1376,23 @@ document.addEventListener("keydown", e => {
       e.preventDefault(); setPresenting(!state.presenting); break;
     case "Enter":
       if (e.target && e.target.tagName === "BUTTON") return;   // deja que el botón haga clic
-      e.preventDefault(); setPresenting(true); break;
+      e.preventDefault();
+      if (state.presenting) setRevealed(true); else setPresenting(true);
+      break;
     case "r": case "R":
       e.preventDefault(); randomQuestion(); break;
     case "u": case "U":
       e.preventDefault(); toggleUsed(current().number); break;
   }
 });
+/* Tras un clic con el ratón se quita el foco del botón, para que
+   Enter y Espacio sigan funcionando como atajos y no repitan el clic */
+document.addEventListener("click", e => {
+  const b = e.target.closest && e.target.closest("button");
+  if (b && e.detail > 0) b.blur();
+});
+/* Evita que Espacio active el botón enfocado al soltar la tecla */
+document.addEventListener("keyup", e => { if (e.key === " ") e.preventDefault(); });
 
 /* Oculta el cursor en presentación tras 2 s sin mover el ratón */
 let mouseTimer = null;
